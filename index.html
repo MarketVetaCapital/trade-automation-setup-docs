@@ -3,41 +3,211 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MarketVeta — ECS Deployment Documentation</title>
+<title>MarketVeta — Deployment Documentation</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0d1117; color: #e6edf3; line-height: 1.7; }
-  
-  header { background: linear-gradient(135deg, #1a2332 0%, #0d1117 100%); border-bottom: 1px solid #21262d; padding: 40px 0; text-align: center; }
+
+  :root {
+    --doc-sidebar-width: 220px;
+    --section-nav-width: 200px;
+    --content-max-width: 900px;
+    --doc-frame-max-width: calc(var(--section-nav-width) + var(--content-max-width));
+  }
+
+  /* [Full-height doc sidebar] | [Nav panel + content column] */
+  .app-shell {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  .doc-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: var(--doc-sidebar-width);
+    height: 100vh;
+    background: #010409;
+    border-right: 1px solid #21262d;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 0;
+    overflow-y: auto;
+  }
+
+  .doc-sidebar-brand {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid #21262d;
+    margin-bottom: 20px;
+  }
+
+  .doc-sidebar-brand .brand-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #1f6feb 0%, #388bfd 100%);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+
+  .doc-sidebar-brand .brand-name {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: #589afe;
+    text-transform: uppercase;
+  }
+
+  .doc-sidebar-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #589afe;
+    margin-bottom: 12px;
+    padding: 0 20px;
+  }
+
+  .doc-switcher {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 12px;
+  }
+
+  .doc-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #8b949e;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+    padding: 10px 12px;
+    transition: color 0.2s, background 0.2s;
+  }
+
+  .doc-btn:hover { color: #c9d1d9; background: #161b22; }
+  .doc-btn.active {
+    color: #589afe;
+    background: #1f6feb33;
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 #589afe;
+  }
+
+  .page-main {
+    margin-left: var(--doc-sidebar-width);
+    flex: 1;
+    min-width: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #0d1117;
+  }
+
+  .page-body {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    padding: 0 32px 0 40px;
+    min-width: 0;
+  }
+
+  .doc-frame {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+    max-width: var(--doc-frame-max-width);
+    margin: 0 auto;
+  }
+
+  .section-nav-sidebar {
+    width: var(--section-nav-width);
+    flex-shrink: 0;
+    align-self: flex-start;
+    position: sticky;
+    top: 0;
+    max-height: 100vh;
+    overflow-y: auto;
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 10px;
+    margin-top: 32px;
+    padding: 20px 12px 24px;
+  }
+
+  .section-nav-sidebar-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #589afe;
+    margin-bottom: 14px;
+    padding: 0 8px;
+  }
+
+  .section-nav { display: none; }
+  .section-nav.active { display: block; }
+
+  .section-nav a {
+    display: block;
+    color: #8b949e;
+    text-decoration: none;
+    font-size: 12px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    line-height: 1.35;
+    margin: 2px 0;
+    transition: color 0.2s, background 0.2s;
+  }
+
+  .section-nav a:hover { color: #589afe; background: #21262d; }
+  .section-nav a.active { color: #589afe; background: #1f6feb22; font-weight: 500; }
+
+  .page-content {
+    flex: 1;
+    min-width: 0;
+    max-width: var(--content-max-width);
+    display: flex;
+    flex-direction: column;
+  }
+
+  header { background: linear-gradient(135deg, #1a2332 0%, #0d1117 100%); border-bottom: 1px solid #21262d; padding: 40px 32px; text-align: center; flex-shrink: 0; }
   header .logo { font-size: 13px; font-weight: 600; letter-spacing: 3px; color: #589afe; text-transform: uppercase; margin-bottom: 12px; }
   header h1 { font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 8px; }
   header p { color: #8b949e; font-size: 15px; }
   header .badge { display: inline-block; background: #1f6feb22; border: 1px solid #1f6feb; color: #589afe; font-size: 12px; padding: 3px 10px; border-radius: 20px; margin-top: 12px; }
+  header .badge a { color: #589afe; text-decoration: none; }
+  header .badge a:hover { text-decoration: underline; }
 
-  .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+  .content-area { flex: 1; min-width: 0; }
+  .main-content { padding: 32px 32px 48px; width: 100%; }
 
-  /* TOC */
-  .toc { background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 24px; margin-bottom: 40px; }
-  .toc h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 2px; color: #589afe; margin-bottom: 16px; }
-  .toc ol { padding-left: 20px; }
-  .toc li { margin: 6px 0; }
-  .toc a { color: #8b949e; text-decoration: none; font-size: 14px; transition: color 0.2s; }
-  .toc a:hover { color: #589afe; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
 
   /* Sections */
-  .section { margin-bottom: 48px; }
+  .section { margin-bottom: 48px; scroll-margin-top: 24px; }
   .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid #21262d; }
   .section-num { background: #1f6feb; color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
   .section-num.green { background: #238636; }
   .section-num.orange { background: #d29922; }
   .section-num.red { background: #da3633; }
   .section-num.purple { background: #8957e5; }
+  .section-num.cyan { background: #388bfd; }
   h2 { font-size: 20px; font-weight: 700; color: #fff; }
 
-  /* Overview box */
   .overview-box { background: #161b22; border: 1px solid #21262d; border-left: 3px solid #589afe; border-radius: 8px; padding: 20px 24px; font-size: 15px; color: #c9d1d9; }
 
-  /* Steps */
   .step { background: #161b22; border: 1px solid #21262d; border-radius: 10px; padding: 20px 24px; margin-bottom: 16px; }
   .step-title { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
   .step-num { background: #21262d; color: #589afe; width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
@@ -46,21 +216,18 @@
   .step li { font-size: 14px; color: #8b949e; margin: 5px 0; }
   .step li strong { color: #c9d1d9; }
 
-  /* Code */
   code { background: #21262d; color: #79c0ff; padding: 2px 7px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 13px; }
   .code-block { background: #161b22; border: 1px solid #21262d; border-radius: 10px; padding: 20px 24px; margin: 16px 0; }
   .code-block .code-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #8b949e; margin-bottom: 12px; }
-  .code-block pre { font-family: 'Courier New', monospace; font-size: 13px; color: #79c0ff; line-height: 1.8; overflow-x: auto; }
+  .code-block pre { font-family: 'Courier New', monospace; font-size: 13px; color: #79c0ff; line-height: 1.8; overflow-x: auto; white-space: pre-wrap; }
   .code-block pre .comment { color: #8b949e; }
 
-  /* Env vars table */
   table { width: 100%; border-collapse: collapse; margin-top: 12px; }
   th { background: #21262d; color: #8b949e; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; padding: 10px 14px; text-align: left; }
   td { padding: 10px 14px; font-size: 13px; color: #c9d1d9; border-bottom: 1px solid #21262d; }
   td code { background: #0d1117; }
   tr:last-child td { border-bottom: none; }
 
-  /* Warning / Note boxes */
   .warning { background: #3d1f00; border: 1px solid #d29922; border-radius: 8px; padding: 16px 20px; margin: 12px 0; display: flex; gap: 12px; align-items: flex-start; }
   .warning .icon { font-size: 16px; flex-shrink: 0; margin-top: 2px; }
   .warning p { font-size: 14px; color: #e3b341; }
@@ -76,100 +243,154 @@
   .info p { font-size: 14px; color: #79c0ff; }
   .info p strong { color: #589afe; display: block; margin-bottom: 4px; }
 
-  /* Next steps */
   .next-step { background: #161b22; border: 1px solid #238636; border-radius: 10px; padding: 18px 24px; margin-bottom: 12px; display: flex; gap: 14px; align-items: flex-start; }
   .next-step .check { color: #3fb950; font-size: 18px; flex-shrink: 0; margin-top: 2px; }
   .next-step h4 { font-size: 15px; font-weight: 600; color: #e6edf3; margin-bottom: 4px; }
   .next-step p { font-size: 13px; color: #8b949e; }
 
-  /* UI Path */
   .ui-path { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
   .ui-path span { background: #21262d; color: #c9d1d9; padding: 3px 10px; border-radius: 5px; font-size: 13px; }
   .ui-path .arrow { color: #8b949e; font-size: 12px; }
 
-  footer { border-top: 1px solid #21262d; padding: 24px; text-align: center; color: #8b949e; font-size: 13px; margin-top: 40px; }
+  .problem-solution { display: grid; gap: 12px; margin-top: 12px; }
+  .problem-solution .label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #8b949e; margin-bottom: 4px; }
+
+  footer { border-top: 1px solid #21262d; padding: 24px; text-align: center; color: #8b949e; font-size: 13px; flex-shrink: 0; }
   footer span { color: #589afe; }
+
+  @media (max-width: 768px) {
+    .doc-sidebar {
+      position: relative;
+      width: 100%;
+      height: auto;
+      min-height: 0;
+    }
+    .page-main { margin-left: 0; }
+    .app-shell { flex-direction: column; }
+    .page-body { padding: 0 16px; }
+    .doc-frame { flex-direction: column; max-width: none; }
+    .section-nav-sidebar {
+      width: 100%;
+      position: relative;
+      max-height: none;
+      margin-top: 0;
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+      padding: 16px 20px;
+    }
+    .page-content { max-width: none; }
+    .section-nav.active { display: flex; flex-wrap: wrap; gap: 4px; }
+    .section-nav a { display: inline-block; font-size: 13px; }
+    header { padding: 28px 20px; }
+    .main-content { padding: 24px 16px; }
+  }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">MarketVeta Capital</div>
-  <h1>ECS Deployment Documentation</h1>
-  <p>Deploying WebSocket Forwarding Services on AWS ECS</p>
-  <div class="badge">📹 Generated from Meeting Recording — June 3, 2026</div>
-</header>
-
-<div class="container">
-
-  <!-- TOC -->
-  <div class="toc">
-    <h3>📋 Table of Contents</h3>
-    <ol>
-      <li><a href="#overview">Overview</a></li>
-      <li><a href="#aws-setup">AWS ECS Setup</a></li>
-      <li><a href="#services">Services Configuration</a></li>
-      <li><a href="#commands">Commands Used</a></li>
-      <li><a href="#ui-steps">Console UI Steps</a></li>
-      <li><a href="#warnings">Important Notes & Warnings</a></li>
-      <li><a href="#next-steps">Next Steps</a></li>
-    </ol>
-  </div>
-
-  <!-- Overview -->
-  <div class="section" id="overview">
-    <div class="section-header">
-      <div class="section-num">📌</div>
-      <h2>Overview</h2>
+<div class="app-shell">
+  <aside class="doc-sidebar" aria-label="Documentation">
+    <div class="doc-sidebar-brand">
+      <div class="brand-mark" title="MarketVeta Capital">MV</div>
+      <div class="brand-name">MarketVeta</div>
     </div>
-    <div class="overview-box">
-      This meeting covered the complete manual deployment process for the <strong>Discord WebSocket Forwarding Service (Trade Listener)</strong> on AWS ECS. The following topics were covered:
-      <ul style="margin-top: 12px; padding-left: 20px;">
-        <li style="margin: 6px 0;">Pushing a Dockerized app from local → AWS ECR</li>
-        <li style="margin: 6px 0;">Configuring secrets via AWS Systems Manager Parameter Store</li>
-        <li style="margin: 6px 0;">Setting up ECS Task Definitions and Clusters</li>
-        <li style="margin: 6px 0;">Networking and Security Groups for port <code>8765</code></li>
-        <li style="margin: 6px 0;">Troubleshooting IAM permissions</li>
-        <li style="margin: 6px 0;">CloudWatch logs for debugging</li>
-        <li style="margin: 6px 0;">Updating environment variables for Webhook routing</li>
-      </ul>
-    </div>
-  </div>
+    <h3 class="doc-sidebar-label">Documentation</h3>
+    <nav class="doc-switcher" id="doc-switcher">
+      <button type="button" class="doc-btn active" data-tab="ecs" aria-selected="true">AWS ECS Deployment</button>
+      <button type="button" class="doc-btn" data-tab="cloudflare" aria-selected="false">Cloudflare Pages Deployment</button>
+    </nav>
+  </aside>
 
-  <!-- AWS ECS Setup -->
-  <div class="section" id="aws-setup">
-    <div class="section-header">
-      <div class="section-num green">1</div>
-      <h2>AWS ECS Setup</h2>
-    </div>
+  <div class="page-main">
+    <header>
+      <div class="logo">MarketVeta Capital</div>
+      <h1 id="header-title">AWS ECS Deployment</h1>
+      <p id="header-subtitle">Deploying WebSocket Forwarding Services on AWS ECS</p>
+      <div class="badge" id="header-badge">📹 Generated from Meeting Recording — June 3, 2026</div>
+    </header>
 
-    <div class="step">
-      <div class="step-title">
-        <div class="step-num">1</div>
-        <h3>Authenticate & Prepare Local Environment</h3>
+    <div class="page-body">
+      <div class="doc-frame">
+      <aside class="section-nav-sidebar" aria-label="Section navigation">
+        <h3 class="section-nav-sidebar-label">Navigation</h3>
+        <nav id="nav-ecs" class="section-nav active" aria-label="ECS sections">
+          <a href="#ecs-overview" class="active">Overview</a>
+          <a href="#ecs-aws-setup">AWS ECS Setup</a>
+          <a href="#ecs-services">Services Configuration</a>
+          <a href="#ecs-commands">Commands Used</a>
+          <a href="#ecs-ui-steps">Console UI Steps</a>
+          <a href="#ecs-warnings">Important Notes & Warnings</a>
+          <a href="#ecs-next-steps">Next Steps</a>
+        </nav>
+        <nav id="nav-cloudflare" class="section-nav" aria-label="Cloudflare sections">
+          <a href="#cf-overview">Overview</a>
+          <a href="#cf-setup">Cloudflare Pages Setup</a>
+          <a href="#cf-build">Build Configuration</a>
+          <a href="#cf-azure">Azure Entra ID Configuration</a>
+          <a href="#cf-commands">Commands Used</a>
+          <a href="#cf-warnings">Important Notes & Warnings</a>
+          <a href="#cf-next-steps">Next Steps</a>
+        </nav>
+      </aside>
+
+      <div class="page-content">
+    <div class="content-area">
+    <div class="tab-panel active" id="panel-ecs" role="tabpanel">
+      <main class="main-content">
+
+      <div class="section" id="ecs-overview">
+        <div class="section-header">
+          <div class="section-num">📌</div>
+          <h2>Overview</h2>
+        </div>
+        <div class="overview-box">
+          This meeting covered the complete manual deployment process for the <strong>Discord WebSocket Forwarding Service (Trade Listener)</strong> on AWS ECS. The following topics were covered:
+          <ul style="margin-top: 12px; padding-left: 20px;">
+            <li style="margin: 6px 0;">Pushing a Dockerized app from local → AWS ECR</li>
+            <li style="margin: 6px 0;">Configuring secrets via AWS Systems Manager Parameter Store</li>
+            <li style="margin: 6px 0;">Setting up ECS Task Definitions and Clusters</li>
+            <li style="margin: 6px 0;">Networking and Security Groups for port <code>8765</code></li>
+            <li style="margin: 6px 0;">Troubleshooting IAM permissions</li>
+            <li style="margin: 6px 0;">CloudWatch logs for debugging</li>
+            <li style="margin: 6px 0;">Updating environment variables for Webhook routing</li>
+          </ul>
+        </div>
       </div>
-      <ul>
-        <li>Ensure <strong>Docker</strong> and <strong>AWS CLI</strong> are installed on your local machine</li>
-        <li>If credential errors occur: <strong>IAM → Users → Security Credentials → Create Access Key</strong></li>
-        <li>Use the new <strong>Access Key ID</strong> and <strong>Secret Access Key</strong> to authenticate AWS CLI</li>
-      </ul>
-    </div>
 
-    <div class="step">
-      <div class="step-title">
-        <div class="step-num">2</div>
-        <h3>Push Docker Image to ECR</h3>
-      </div>
-      <ul>
-        <li>AWS Console → Search <strong>Elastic Container Registry (ECR)</strong></li>
-        <li>Select repository (e.g., <code>discord-self</code>) → Click <strong>"View push commands"</strong></li>
-        <li>Select your OS (macOS/Linux or Windows)</li>
-        <li>Open terminal → Navigate to project directory</li>
-        <li>Run the provided commands one by one: login, build, tag, push</li>
-      </ul>
-      <div class="code-block">
-        <div class="code-label">Terminal Commands</div>
-        <pre>cd self   <span class="comment"># Navigate to project directory</span>
+      <div class="section" id="ecs-aws-setup">
+        <div class="section-header">
+          <div class="section-num green">1</div>
+          <h2>AWS ECS Setup</h2>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <div class="step-num">1</div>
+            <h3>Authenticate & Prepare Local Environment</h3>
+          </div>
+          <ul>
+            <li>Ensure <strong>Docker</strong> and <strong>AWS CLI</strong> are installed on your local machine</li>
+            <li>If credential errors occur: <strong>IAM → Users → Security Credentials → Create Access Key</strong></li>
+            <li>Use the new <strong>Access Key ID</strong> and <strong>Secret Access Key</strong> to authenticate AWS CLI</li>
+          </ul>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <div class="step-num">2</div>
+            <h3>Push Docker Image to ECR</h3>
+          </div>
+          <ul>
+            <li>AWS Console → Search <strong>Elastic Container Registry (ECR)</strong></li>
+            <li>Select repository (e.g., <code>discord-self</code>) → Click <strong>"View push commands"</strong></li>
+            <li>Select your OS (macOS/Linux or Windows)</li>
+            <li>Open terminal → Navigate to project directory</li>
+            <li>Run the provided commands one by one: login, build, tag, push</li>
+          </ul>
+          <div class="code-block">
+            <div class="code-label">Terminal Commands</div>
+            <pre>cd self   <span class="comment"># Navigate to project directory</span>
 
 <span class="comment"># Then run ECR push commands from AWS Console</span>
 <span class="comment"># (login → build → tag → push)</span>
@@ -177,145 +398,143 @@ aws ecr get-login-password --region us-east-2 | docker login ...
 docker build -t discord-self .
 docker tag discord-self:latest &lt;ECR_URI&gt;:latest
 docker push &lt;ECR_URI&gt;:latest</pre>
-      </div>
-      <div class="warning">
-        <div class="icon">⚠️</div>
-        <p><strong>Windows Users</strong> Use PowerShell — NOT standard CMD — to run ECR deployment commands.</p>
-      </div>
-    </div>
+          </div>
+          <div class="warning">
+            <div class="icon">⚠️</div>
+            <p><strong>Windows Users</strong> Use PowerShell — NOT standard CMD — to run ECR deployment commands.</p>
+          </div>
+        </div>
 
-    <div class="step">
-      <div class="step-title">
-        <div class="step-num">3</div>
-        <h3>Create ECS Cluster</h3>
+        <div class="step">
+          <div class="step-title">
+            <div class="step-num">3</div>
+            <h3>Create ECS Cluster</h3>
+          </div>
+          <ul>
+            <li>AWS Console → <strong>Elastic Container Service (ECS)</strong> → <strong>Clusters</strong> → <strong>Create cluster</strong></li>
+            <li>Provide a cluster name</li>
+            <li>Use low-spec configuration — estimated cost: <strong>$20–$30/month</strong></li>
+          </ul>
+        </div>
       </div>
-      <ul>
-        <li>AWS Console → <strong>Elastic Container Service (ECS)</strong> → <strong>Clusters</strong> → <strong>Create cluster</strong></li>
-        <li>Provide a cluster name</li>
-        <li>Use low-spec configuration — estimated cost: <strong>$20–$30/month</strong></li>
-      </ul>
-    </div>
-  </div>
 
-  <!-- Services Configuration -->
-  <div class="section" id="services">
-    <div class="section-header">
-      <div class="section-num orange">2</div>
-      <h2>Services Configuration</h2>
-    </div>
+      <div class="section" id="ecs-services">
+        <div class="section-header">
+          <div class="section-num orange">2</div>
+          <h2>Services Configuration</h2>
+        </div>
 
-    <div class="step">
-      <div class="step-title">
-        <div class="step-num">1</div>
-        <h3>Configure Secrets in Parameter Store</h3>
+        <div class="step">
+          <div class="step-title">
+            <div class="step-num">1</div>
+            <h3>Configure Secrets in Parameter Store</h3>
+          </div>
+          <ul>
+            <li>Navigate: <strong>Systems Manager → Parameter Store → Create parameter</strong></li>
+            <li>Enter parameter name (e.g., Discord Token)</li>
+            <li>Set Type: <code>SecureString</code></li>
+            <li>Paste your Discord token → Click <strong>Save</strong></li>
+          </ul>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <div class="step-num">2</div>
+            <h3>Create Task Definition</h3>
+          </div>
+          <ul>
+            <li><strong>ECS → Task Definitions → Create new task definition</strong></li>
+            <li>Name: <code>discord-listener</code> or <code>trade-listener</code></li>
+            <li>Resources: <strong>1 CPU</strong>, standard memory</li>
+            <li>Task execution role: <strong>Create default role</strong></li>
+            <li>Container image: Paste <strong>Image URI</strong> from ECR</li>
+            <li>Port mapping: <code>8765</code></li>
+            <li>Add environment variables (see table below)</li>
+          </ul>
+
+          <table>
+            <tr>
+              <th>Variable Name</th>
+              <th>Value</th>
+              <th>Notes</th>
+            </tr>
+            <tr>
+              <td><code>DISCORD_TOKEN</code></td>
+              <td>From Parameter Store</td>
+              <td>SecureString reference</td>
+            </tr>
+            <tr>
+              <td><code>SOURCE_CHANNEL_ID</code></td>
+              <td>Discord Channel ID</td>
+              <td>Channel to monitor</td>
+            </tr>
+            <tr>
+              <td><code>DS_ENABLED</code></td>
+              <td><code>true</code></td>
+              <td>Enable Discord service</td>
+            </tr>
+            <tr>
+              <td><code>HOST</code></td>
+              <td>Host value</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><code>DESTINATION_TYPE</code></td>
+              <td>Destination type</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><code>WEBHOOK_URL</code></td>
+              <td>Webhook endpoint</td>
+              <td>Trade Executor webhook</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <div class="step-num">3</div>
+            <h3>Create ECS Service & Security Group</h3>
+          </div>
+          <ul>
+            <li>Go to Cluster → <strong>Services tab → Create</strong></li>
+            <li>Name: <code>discord-ser</code></li>
+            <li>Networking → Create new Security Group → Name: <code>socket</code></li>
+            <li>Add rule: <strong>Custom TCP → Port 8765 → Source: Anywhere</strong></li>
+            <li>Click <strong>Create</strong></li>
+          </ul>
+          <div class="danger">
+            <div class="icon">🔴</div>
+            <p><strong>Security Warning</strong> Port 8765 is currently open to public internet (testing only). Must be restricted to internal IPs before production.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <div class="step-num">4</div>
+            <h3>Updating Service with New Variables</h3>
+          </div>
+          <ul>
+            <li><strong>Task Definitions</strong> → select definition → <strong>Create new revision</strong></li>
+            <li>Update environment variable values → Click <strong>Create</strong></li>
+            <li><strong>Clusters → Service → Update service</strong></li>
+            <li>Select new task definition revision number → Click <strong>Update</strong></li>
+          </ul>
+          <div class="warning">
+            <div class="icon">⚠️</div>
+            <p><strong>Dynamic IP</strong> Every service update assigns a NEW public IP. Update your WebSocket client with the new IP after each update.</p>
+          </div>
+        </div>
       </div>
-      <ul>
-        <li>Navigate: <strong>Systems Manager → Parameter Store → Create parameter</strong></li>
-        <li>Enter parameter name (e.g., Discord Token)</li>
-        <li>Set Type: <code>SecureString</code></li>
-        <li>Paste your Discord token → Click <strong>Save</strong></li>
-      </ul>
-    </div>
 
-    <div class="step">
-      <div class="step-title">
-        <div class="step-num">2</div>
-        <h3>Create Task Definition</h3>
-      </div>
-      <ul>
-        <li><strong>ECS → Task Definitions → Create new task definition</strong></li>
-        <li>Name: <code>discord-listener</code> or <code>trade-listener</code></li>
-        <li>Resources: <strong>1 CPU</strong>, standard memory</li>
-        <li>Task execution role: <strong>Create default role</strong></li>
-        <li>Container image: Paste <strong>Image URI</strong> from ECR</li>
-        <li>Port mapping: <code>8765</code></li>
-        <li>Add environment variables (see table below)</li>
-      </ul>
-
-      <table>
-        <tr>
-          <th>Variable Name</th>
-          <th>Value</th>
-          <th>Notes</th>
-        </tr>
-        <tr>
-          <td><code>DISCORD_TOKEN</code></td>
-          <td>From Parameter Store</td>
-          <td>SecureString reference</td>
-        </tr>
-        <tr>
-          <td><code>SOURCE_CHANNEL_ID</code></td>
-          <td>Discord Channel ID</td>
-          <td>Channel to monitor</td>
-        </tr>
-        <tr>
-          <td><code>DS_ENABLED</code></td>
-          <td><code>true</code></td>
-          <td>Enable Discord service</td>
-        </tr>
-        <tr>
-          <td><code>HOST</code></td>
-          <td>Host value</td>
-          <td></td>
-        </tr>
-        <tr>
-          <td><code>DESTINATION_TYPE</code></td>
-          <td>Destination type</td>
-          <td></td>
-        </tr>
-        <tr>
-          <td><code>WEBHOOK_URL</code></td>
-          <td>Webhook endpoint</td>
-          <td>Trade Executor webhook</td>
-        </tr>
-      </table>
-    </div>
-
-    <div class="step">
-      <div class="step-title">
-        <div class="step-num">3</div>
-        <h3>Create ECS Service & Security Group</h3>
-      </div>
-      <ul>
-        <li>Go to Cluster → <strong>Services tab → Create</strong></li>
-        <li>Name: <code>discord-ser</code></li>
-        <li>Networking → Create new Security Group → Name: <code>socket</code></li>
-        <li>Add rule: <strong>Custom TCP → Port 8765 → Source: Anywhere</strong></li>
-        <li>Click <strong>Create</strong></li>
-      </ul>
-      <div class="danger">
-        <div class="icon">🔴</div>
-        <p><strong>Security Warning</strong> Port 8765 is currently open to public internet (testing only). Must be restricted to internal IPs before production.</p>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-title">
-        <div class="step-num">4</div>
-        <h3>Updating Service with New Variables</h3>
-      </div>
-      <ul>
-        <li><strong>Task Definitions</strong> → select definition → <strong>Create new revision</strong></li>
-        <li>Update environment variable values → Click <strong>Create</strong></li>
-        <li><strong>Clusters → Service → Update service</strong></li>
-        <li>Select new task definition revision number → Click <strong>Update</strong></li>
-      </ul>
-      <div class="warning">
-        <div class="icon">⚠️</div>
-        <p><strong>Dynamic IP</strong> Every service update assigns a NEW public IP. Update your WebSocket client with the new IP after each update.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Commands -->
-  <div class="section" id="commands">
-    <div class="section-header">
-      <div class="section-num purple">3</div>
-      <h2>Commands Used</h2>
-    </div>
-    <div class="code-block">
-      <div class="code-label">CLI Commands</div>
-      <pre>aws configure              <span class="comment"># Configure AWS credentials</span>
+      <div class="section" id="ecs-commands">
+        <div class="section-header">
+          <div class="section-num purple">3</div>
+          <h2>Commands Used</h2>
+        </div>
+        <div class="code-block">
+          <div class="code-label">CLI Commands</div>
+          <pre>aws configure              <span class="comment"># Configure AWS credentials</span>
 cd self                    <span class="comment"># Navigate to project directory</span>
 
 <span class="comment"># ECR Push Commands (from AWS Console → View push commands)</span>
@@ -325,114 +544,423 @@ aws ecr get-login-password --region us-east-2 | \
 docker build -t discord-self .
 docker tag discord-self:latest &lt;ECR_URI&gt;:latest
 docker push &lt;ECR_URI&gt;:latest</pre>
+        </div>
+      </div>
+
+      <div class="section" id="ecs-ui-steps">
+        <div class="section-header">
+          <div class="section-num">🖥️</div>
+          <h2>Console UI Steps</h2>
+        </div>
+
+        <div class="step">
+          <h3 style="margin-bottom:12px; font-size:14px; color:#8b949e;">Accessing Push Commands</h3>
+          <div class="ui-path">
+            <span>ECR</span><div class="arrow">→</div>
+            <span>Select Repository</span><div class="arrow">→</div>
+            <span>View push commands</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <h3 style="margin-bottom:12px; font-size:14px; color:#8b949e;">Viewing Logs (CloudWatch)</h3>
+          <div class="ui-path">
+            <span>CloudWatch</span><div class="arrow">→</div>
+            <span>Logs</span><div class="arrow">→</div>
+            <span>Log Groups</span><div class="arrow">→</div>
+            <span>ECS Task Log Group</span>
+          </div>
+          <p style="font-size:13px; color:#8b949e; margin-top:8px;">Or directly: <strong>ECS → Task → Logs tab</strong></p>
+        </div>
+
+        <div class="step">
+          <h3 style="margin-bottom:12px; font-size:14px; color:#8b949e;">Fixing IAM Permissions</h3>
+          <div class="ui-path">
+            <span>IAM</span><div class="arrow">→</div>
+            <span>Users</span><div class="arrow">→</div>
+            <span>Select User</span><div class="arrow">→</div>
+            <span>Add permissions</span><div class="arrow">→</div>
+            <span>Attach policies</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <h3 style="margin-bottom:12px; font-size:14px; color:#8b949e;">Testing WebSocket (Postman)</h3>
+          <ul>
+            <li>Postman → <strong>+ New → WebSocket</strong></li>
+            <li>Enter: <code>ws://&lt;Public-IP&gt;:8765</code></li>
+            <li>Get Public IP from ECS Task details after service update</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section" id="ecs-warnings">
+        <div class="section-header">
+          <div class="section-num red">⚠</div>
+          <h2>Important Notes & Warnings</h2>
+        </div>
+
+        <div class="warning">
+          <div class="icon">⚠️</div>
+          <p><strong>Windows Terminal</strong> Always use PowerShell — not standard CMD — for ECR deployment commands on Windows.</p>
+        </div>
+
+        <div class="warning">
+          <div class="icon">⚠️</div>
+          <p><strong>Missing Variables</strong> If service fails to start, check CloudWatch logs immediately. Common errors: "Discord token not configured" or "No web hook URL configured".</p>
+        </div>
+
+        <div class="warning">
+          <div class="icon">⚠️</div>
+          <p><strong>Dynamic IP on Update</strong> Every task definition revision update → new container → new public IP. Always update WebSocket client with the new IP.</p>
+        </div>
+
+        <div class="danger">
+          <div class="icon">🔴</div>
+          <p><strong>Security — Port 8765 Open</strong> Currently open to public internet for testing. Before production, restrict to internal microservice IPs only (Trade Executor / Trade Parser).</p>
+        </div>
+      </div>
+
+      <div class="section" id="ecs-next-steps">
+        <div class="section-header">
+          <div class="section-num green">✓</div>
+          <h2>Next Steps</h2>
+        </div>
+
+        <div class="next-step">
+          <div class="check">🔄</div>
+          <div>
+            <h4>Automate Deployments (CI/CD)</h4>
+            <p>Replace manual Docker build + ECR push with GitHub Actions pipeline. Push to main → auto build → auto deploy to ECS.</p>
+          </div>
+        </div>
+
+        <div class="next-step">
+          <div class="check">🔒</div>
+          <div>
+            <h4>IP Whitelisting (Security)</h4>
+            <p>Once Trade Executor and Trade Parser are deployed, update Security Group — restrict port 8765 to internal microservice IPs only. Block public access entirely.</p>
+          </div>
+        </div>
+      </div>
+
+      </main>
+    </div>
+
+    <div class="tab-panel" id="panel-cloudflare" role="tabpanel">
+      <main class="main-content">
+
+      <div class="section" id="cf-overview">
+        <div class="section-header">
+          <div class="section-num">📌</div>
+          <h2>Overview</h2>
+        </div>
+        <div class="overview-box">
+          Deployment of the <strong>MarketVeta Trading Dashboard</strong> — an Angular application — to <strong>Cloudflare Pages</strong> via GitHub integration. This documentation covers:
+          <ul style="margin-top: 12px; padding-left: 20px;">
+            <li style="margin: 6px 0;">Connecting the GitHub repository and configuring the Cloudflare Pages project</li>
+            <li style="margin: 6px 0;">Configuring <strong>Microsoft login (Azure Entra ID)</strong> for the production URL</li>
+          </ul>
+        </div>
+        <div class="info" style="margin-top: 16px;">
+          <div class="icon">🌐</div>
+          <p><strong>Live URL</strong> <a href="https://trade-dashboard-ui-7bb.pages.dev" style="color:#79c0ff;">https://trade-dashboard-ui-7bb.pages.dev</a></p>
+        </div>
+      </div>
+
+      <div class="section" id="cf-setup">
+        <div class="section-header">
+          <div class="section-num green">1</div>
+          <h2>Cloudflare Pages Setup</h2>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <div class="step-num">1</div>
+            <h3>Create Pages Project & Connect GitHub</h3>
+          </div>
+          <ul>
+            <li>Created a new <strong>Cloudflare Pages</strong> project in the Cloudflare dashboard</li>
+            <li>Connected to GitHub repository: <code>MarketVetaCapital/trade-dashboard-ui</code></li>
+            <li>Configured automatic deployments on push to the production branch (<code>main</code>)</li>
+          </ul>
+          <div class="ui-path" style="margin-top: 12px;">
+            <span>Cloudflare Dashboard</span><div class="arrow">→</div>
+            <span>Workers & Pages</span><div class="arrow">→</div>
+            <span>Create application</span><div class="arrow">→</div>
+            <span>Pages</span><div class="arrow">→</div>
+            <span>Connect to Git</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="cf-build">
+        <div class="section-header">
+          <div class="section-num orange">2</div>
+          <h2>Build Configuration</h2>
+        </div>
+
+        <div class="step">
+          <p style="font-size:14px; color:#8b949e; margin-bottom: 12px;">These settings were configured in the Cloudflare Pages project build settings:</p>
+          <table>
+            <tr>
+              <th>Setting</th>
+              <th>Value</th>
+            </tr>
+            <tr>
+              <td>Framework preset</td>
+              <td><strong>Angular</strong> (uses <code>ng build</code>)</td>
+            </tr>
+            <tr>
+              <td>Build command</td>
+              <td><code>npm run build</code></td>
+            </tr>
+            <tr>
+              <td>Build output directory</td>
+              <td><code>dist/trading-app</code></td>
+            </tr>
+            <tr>
+              <td>Repository</td>
+              <td><code>MarketVetaCapital/trade-dashboard-ui</code></td>
+            </tr>
+          </table>
+          <div class="info" style="margin-top: 16px;">
+            <div class="icon">ℹ️</div>
+            <p><strong>Angular build</strong> The project uses the standard Angular CLI build pipeline. Cloudflare runs <code>npm run build</code>, which invokes <code>ng build</code> and outputs static assets to <code>dist/trading-app</code>.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="cf-azure">
+        <div class="section-header">
+          <div class="section-num red">3</div>
+          <h2>Azure Entra ID Configuration</h2>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <div class="step-num">1</div>
+            <h3>Problem: Redirect to localhost after login</h3>
+          </div>
+          <ul>
+            <li>After Microsoft login in production, users were redirected to <code>localhost</code> instead of the Cloudflare Pages URL</li>
+            <li>Azure App Registration only had localhost redirect URIs configured</li>
+          </ul>
+          <p style="font-size:14px; color:#8b949e; margin: 12px 0 8px;"><strong>Solution:</strong> Added production redirect URI in Azure Portal:</p>
+          <div class="code-block">
+            <div class="code-label">Redirect URI</div>
+            <pre>https://trade-dashboard-ui-7bb.pages.dev</pre>
+          </div>
+          <div class="ui-path">
+            <span>Azure Portal</span><div class="arrow">→</div>
+            <span>Microsoft Entra ID</span><div class="arrow">→</div>
+            <span>App registrations</span><div class="arrow">→</div>
+            <span>Authentication</span><div class="arrow">→</div>
+            <span>Redirect URIs</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <div class="step-num">2</div>
+            <h3>Problem: AADSTS9002326 — Cross-origin token redemption</h3>
+          </div>
+          <ul>
+            <li>Login failed with error <code>AADSTS9002326</code>: cross-origin token redemption is permitted only for SPA redirect URIs</li>
+            <li>Azure app was registered as type <strong>"Web"</strong>, which does not support the SPA auth flow used by MSAL in the browser</li>
+          </ul>
+          <p style="font-size:14px; color:#8b949e; margin: 12px 0 8px;"><strong>Solution:</strong> Changed the Azure App <strong>Authentication platform type</strong> from <strong>Web</strong> to <strong>Single-Page Application (SPA)</strong>, and ensured the production URL is listed under SPA redirect URIs.</p>
+          <div class="danger">
+            <div class="icon">🔴</div>
+            <p><strong>Required for MSAL</strong> The app registration must use the SPA platform — not Web — or Microsoft login will fail with AADSTS9002326 in production.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="cf-commands">
+        <div class="section-header">
+          <div class="section-num">⌨️</div>
+          <h2>Commands Used</h2>
+        </div>
+        <div class="code-block">
+          <div class="code-label">Local build & Git deploy</div>
+          <pre>npm run build
+
+git add .
+git commit -m "your commit message"
+git push</pre>
+        </div>
+        <div class="info">
+          <div class="icon">ℹ️</div>
+          <p><strong>Automatic deployment</strong> Each <code>git push</code> to <code>main</code> triggers a new Cloudflare Pages build and deployment — no manual upload required after the initial setup.</p>
+        </div>
+      </div>
+
+      <div class="section" id="cf-warnings">
+        <div class="section-header">
+          <div class="section-num red">⚠</div>
+          <h2>Important Notes & Warnings</h2>
+        </div>
+
+        <div class="danger">
+          <div class="icon">🔴</div>
+          <p><strong>Azure App type must be SPA</strong> Set the Microsoft Entra app to <strong>Single-Page Application</strong>, not <strong>Web</strong>. Using Web causes <code>AADSTS9002326</code> (cross-origin token redemption error).</p>
+        </div>
+
+        <div class="info">
+          <div class="icon">ℹ️</div>
+          <p><strong>Auto-deploy on push</strong> Every git push to the <code>main</code> branch triggers an automatic deployment on Cloudflare Pages.</p>
+        </div>
+
+        <div class="info">
+          <div class="icon">ℹ️</div>
+          <p><strong>Multiple redirect URIs</strong> Both <code>http://localhost:4200</code> and the production URL (<code>https://trade-dashboard-ui-7bb.pages.dev</code>) can coexist in Azure redirect URIs — useful for local dev and production.</p>
+        </div>
+      </div>
+
+      <div class="section" id="cf-next-steps">
+        <div class="section-header">
+          <div class="section-num green">✓</div>
+          <h2>Next Steps</h2>
+        </div>
+
+        <div class="next-step">
+          <div class="check">🌐</div>
+          <div>
+            <h4>Custom Domain</h4>
+            <p>Replace the default <code>*.pages.dev</code> URL with a custom domain (e.g. <code>dashboard.marketveta.com</code>) in Cloudflare Pages → Custom domains.</p>
+          </div>
+        </div>
+
+        <div class="next-step">
+          <div class="check">🔑</div>
+          <div>
+            <h4>Environment Variables</h4>
+            <p>Configure API keys and other secrets in Cloudflare Pages → Settings → Environment variables for production and preview environments.</p>
+          </div>
+        </div>
+
+        <div class="next-step">
+          <div class="check">📊</div>
+          <div>
+            <h4>Cloudflare Analytics</h4>
+            <p>Enable Cloudflare Web Analytics for traffic and performance monitoring on the deployed dashboard.</p>
+          </div>
+        </div>
+      </div>
+
+      </main>
+    </div>
+    </div>
+
+    <footer>
+      <p>MarketVeta Capital — Internal Technical Documentation &nbsp;|&nbsp; <span id="footer-date">June 3, 2026</span></p>
+    </footer>
+      </div>
+      </div>
     </div>
   </div>
-
-  <!-- UI Steps -->
-  <div class="section" id="ui-steps">
-    <div class="section-header">
-      <div class="section-num">🖥️</div>
-      <h2>Console UI Steps</h2>
-    </div>
-
-    <div class="step">
-      <h3 style="margin-bottom:12px; font-size:14px; color:#8b949e;">Accessing Push Commands</h3>
-      <div class="ui-path">
-        <span>ECR</span><div class="arrow">→</div>
-        <span>Select Repository</span><div class="arrow">→</div>
-        <span>View push commands</span>
-      </div>
-    </div>
-
-    <div class="step">
-      <h3 style="margin-bottom:12px; font-size:14px; color:#8b949e;">Viewing Logs (CloudWatch)</h3>
-      <div class="ui-path">
-        <span>CloudWatch</span><div class="arrow">→</div>
-        <span>Logs</span><div class="arrow">→</div>
-        <span>Log Groups</span><div class="arrow">→</div>
-        <span>ECS Task Log Group</span>
-      </div>
-      <p style="font-size:13px; color:#8b949e; margin-top:8px;">Or directly: <strong>ECS → Task → Logs tab</strong></p>
-    </div>
-
-    <div class="step">
-      <h3 style="margin-bottom:12px; font-size:14px; color:#8b949e;">Fixing IAM Permissions</h3>
-      <div class="ui-path">
-        <span>IAM</span><div class="arrow">→</div>
-        <span>Users</span><div class="arrow">→</div>
-        <span>Select User</span><div class="arrow">→</div>
-        <span>Add permissions</span><div class="arrow">→</div>
-        <span>Attach policies</span>
-      </div>
-    </div>
-
-    <div class="step">
-      <h3 style="margin-bottom:12px; font-size:14px; color:#8b949e;">Testing WebSocket (Postman)</h3>
-      <ul>
-        <li>Postman → <strong>+ New → WebSocket</strong></li>
-        <li>Enter: <code>ws://&lt;Public-IP&gt;:8765</code></li>
-        <li>Get Public IP from ECS Task details after service update</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- Warnings -->
-  <div class="section" id="warnings">
-    <div class="section-header">
-      <div class="section-num red">⚠</div>
-      <h2>Important Notes & Warnings</h2>
-    </div>
-
-    <div class="warning">
-      <div class="icon">⚠️</div>
-      <p><strong>Windows Terminal</strong> Always use PowerShell — not standard CMD — for ECR deployment commands on Windows.</p>
-    </div>
-
-    <div class="warning">
-      <div class="icon">⚠️</div>
-      <p><strong>Missing Variables</strong> If service fails to start, check CloudWatch logs immediately. Common errors: "Discord token not configured" or "No web hook URL configured".</p>
-    </div>
-
-    <div class="warning">
-      <div class="icon">⚠️</div>
-      <p><strong>Dynamic IP on Update</strong> Every task definition revision update → new container → new public IP. Always update WebSocket client with the new IP.</p>
-    </div>
-
-    <div class="danger">
-      <div class="icon">🔴</div>
-      <p><strong>Security — Port 8765 Open</strong> Currently open to public internet for testing. Before production, restrict to internal microservice IPs only (Trade Executor / Trade Parser).</p>
-    </div>
-  </div>
-
-  <!-- Next Steps -->
-  <div class="section" id="next-steps">
-    <div class="section-header">
-      <div class="section-num green">✓</div>
-      <h2>Next Steps</h2>
-    </div>
-
-    <div class="next-step">
-      <div class="check">🔄</div>
-      <div>
-        <h4>Automate Deployments (CI/CD)</h4>
-        <p>Replace manual Docker build + ECR push with GitHub Actions pipeline. Push to main → auto build → auto deploy to ECS.</p>
-      </div>
-    </div>
-
-    <div class="next-step">
-      <div class="check">🔒</div>
-      <div>
-        <h4>IP Whitelisting (Security)</h4>
-        <p>Once Trade Executor and Trade Parser are deployed, update Security Group — restrict port 8765 to internal microservice IPs only. Block public access entirely.</p>
-      </div>
-    </div>
-  </div>
-
 </div>
 
-<footer>
-  <p>MarketVeta Capital — Internal Technical Documentation &nbsp;|&nbsp; <span>June 3, 2026</span></p>
-</footer>
+<script>
+(function () {
+  var docBtns = document.querySelectorAll('.doc-btn');
+  var sectionNavs = { ecs: document.getElementById('nav-ecs'), cloudflare: document.getElementById('nav-cloudflare') };
+  var panels = { ecs: document.getElementById('panel-ecs'), cloudflare: document.getElementById('panel-cloudflare') };
+  var headerTitle = document.getElementById('header-title');
+  var headerSubtitle = document.getElementById('header-subtitle');
+  var headerBadge = document.getElementById('header-badge');
+  var footerDate = document.getElementById('footer-date');
+  var sectionObserver = null;
+  var activeTab = 'ecs';
+
+  var meta = {
+    ecs: {
+      title: 'AWS ECS Deployment',
+      subtitle: 'Deploying WebSocket Forwarding Services on AWS ECS',
+      badge: '📹 Generated from Meeting Recording — June 3, 2026',
+      date: 'June 3, 2026'
+    },
+    cloudflare: {
+      title: 'Cloudflare Pages Deployment',
+      subtitle: 'Deploying MarketVeta Trading Dashboard (Angular) to Cloudflare Pages',
+      badge: '🌐 Live: <a href="https://trade-dashboard-ui-7bb.pages.dev">trade-dashboard-ui-7bb.pages.dev</a> — June 4, 2026',
+      date: 'June 4, 2026'
+    }
+  };
+
+  function bindSectionNav(nav) {
+    var links = nav.querySelectorAll('a');
+    links.forEach(function (link) {
+      link.addEventListener('click', function () {
+        links.forEach(function (l) { l.classList.remove('active'); });
+        link.classList.add('active');
+      });
+    });
+  }
+
+  function observeSections(nav) {
+    if (sectionObserver) sectionObserver.disconnect();
+    var links = nav.querySelectorAll('a');
+    var sections = [];
+    links.forEach(function (link) {
+      var el = document.getElementById(link.getAttribute('href').slice(1));
+      if (el) sections.push(el);
+    });
+    if (!sections.length) return;
+
+    sectionObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          var id = entry.target.id;
+          links.forEach(function (l) {
+            l.classList.toggle('active', l.getAttribute('href') === '#' + id);
+          });
+        }
+      });
+    }, { rootMargin: '-20% 0px -60% 0px', threshold: 0 });
+
+    sections.forEach(function (el) { sectionObserver.observe(el); });
+  }
+
+  function switchTab(tab) {
+    activeTab = tab;
+    docBtns.forEach(function (btn) {
+      var active = btn.getAttribute('data-tab') === tab;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    Object.keys(panels).forEach(function (key) {
+      panels[key].classList.toggle('active', key === tab);
+    });
+    Object.keys(sectionNavs).forEach(function (key) {
+      sectionNavs[key].classList.toggle('active', key === tab);
+    });
+    var m = meta[tab];
+    headerTitle.textContent = m.title;
+    headerSubtitle.textContent = m.subtitle;
+    headerBadge.innerHTML = m.badge;
+    footerDate.textContent = m.date;
+    history.replaceState(null, '', tab === 'ecs' ? '#ecs' : '#cloudflare');
+    observeSections(sectionNavs[tab]);
+  }
+
+  docBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      switchTab(btn.getAttribute('data-tab'));
+    });
+  });
+
+  bindSectionNav(sectionNavs.ecs);
+  bindSectionNav(sectionNavs.cloudflare);
+
+  if (location.hash === '#cloudflare') {
+    switchTab('cloudflare');
+  } else {
+    switchTab('ecs');
+  }
+})();
+</script>
 
 </body>
 </html>
