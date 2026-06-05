@@ -299,6 +299,7 @@
     <nav class="doc-switcher" id="doc-switcher">
       <button type="button" class="doc-btn active" data-tab="ecs" aria-selected="true">AWS ECS Deployment</button>
       <button type="button" class="doc-btn" data-tab="cloudflare" aria-selected="false">Cloudflare Pages Deployment</button>
+      <button type="button" class="doc-btn" data-tab="discord-java" aria-selected="false">Discord Java Listener</button>
     </nav>
   </aside>
 
@@ -331,6 +332,15 @@
           <a href="#cf-commands">Commands Used</a>
           <a href="#cf-warnings">Important Notes & Warnings</a>
           <a href="#cf-next-steps">Next Steps</a>
+        </nav>
+        <nav id="nav-discord-java" class="section-nav" aria-label="Discord Java Listener sections">
+          <a href="#dj-overview">Overview</a>
+          <a href="#dj-aws-setup">AWS Elastic Beanstalk Setup</a>
+          <a href="#dj-services">Services Configuration</a>
+          <a href="#dj-commands">Commands Used</a>
+          <a href="#dj-ui-steps">Screenshots / UI Steps</a>
+          <a href="#dj-warnings">Important Notes & Warnings</a>
+          <a href="#dj-next-steps">Next Steps</a>
         </nav>
       </aside>
 
@@ -851,6 +861,254 @@ git push</pre>
 
       </main>
     </div>
+
+    <div class="tab-panel" id="panel-discord-java" role="tabpanel">
+      <main class="main-content">
+
+      <div class="section" id="dj-overview">
+        <div class="section-header">
+          <div class="section-num">📌</div>
+          <h2>Overview</h2>
+        </div>
+        <div class="overview-box">
+          The meeting covered the end-to-end setup for a new <strong>Discord listener application</strong> designed to forward messages from a Discord server to mobile phones via <strong>SMS</strong>. Key points:
+          <ul style="margin-top: 12px; padding-left: 20px;">
+            <li style="margin: 6px 0;">Built in <strong>Java</strong> using the <strong>JDA (Java Discord API)</strong> library, replacing an older Python-based approach</li>
+            <li style="margin: 6px 0;">Uses <strong>internal WebSockets</strong> to listen for incoming Discord messages in real time — no traditional web server required</li>
+            <li style="margin: 6px 0;">On message receipt, triggers an API call to the <strong>Vital Global SMS</strong> service to broadcast to specific users</li>
+            <li style="margin: 6px 0;">Packaged as a <code>.jar</code> file and deployed to the cloud — does not rely on a local machine</li>
+          </ul>
+        </div>
+        <div class="info" style="margin-top: 16px;">
+          <div class="icon">ℹ️</div>
+          <p><strong>Architecture shift</strong> While the previous Python listener used <strong>AWS ECS</strong>, this Java application is deployed on <strong>AWS Elastic Beanstalk</strong>.</p>
+        </div>
+      </div>
+
+      <div class="section" id="dj-aws-setup">
+        <div class="section-header">
+          <div class="section-num green">1</div>
+          <h2>AWS Elastic Beanstalk Setup</h2>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <div class="step-num">1</div>
+            <h3>Create Web Application</h3>
+          </div>
+          <ul>
+            <li>Navigate to <strong>AWS Elastic Beanstalk</strong> in the AWS Console</li>
+            <li>Create a new <strong>Web Application</strong></li>
+            <li>Upload and deploy the compiled <code>.jar</code> file into the new environment</li>
+          </ul>
+          <div class="ui-path" style="margin-top: 12px;">
+            <span>AWS Console</span><div class="arrow">→</div>
+            <span>Elastic Beanstalk</span><div class="arrow">→</div>
+            <span>Create application</span><div class="arrow">→</div>
+            <span>Upload .jar</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <div class="step-num">2</div>
+            <h3>Environment Configuration</h3>
+          </div>
+          <table>
+            <tr>
+              <th>Setting</th>
+              <th>Value</th>
+            </tr>
+            <tr>
+              <td>Runtime</td>
+              <td><strong>Java 21</strong></td>
+            </tr>
+            <tr>
+              <td>Networking</td>
+              <td>Configure <strong>VPC</strong> and required networking environment properties</td>
+            </tr>
+            <tr>
+              <td>Database</td>
+              <td><strong>None</strong> — deploy without a database; not required for this listener service</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="info">
+          <div class="icon">ℹ️</div>
+          <p><strong>ECS vs. Elastic Beanstalk</strong> The older Python Discord listener ran on ECS. This new Java listener explicitly uses Elastic Beanstalk for deployment.</p>
+        </div>
+      </div>
+
+      <div class="section" id="dj-services">
+        <div class="section-header">
+          <div class="section-num orange">2</div>
+          <h2>Services Configuration</h2>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <div class="step-num">1</div>
+            <h3>Discord Bot Configuration</h3>
+          </div>
+          <ul>
+            <li>Enable <strong>Developer Mode</strong> in Discord: <strong>Settings → Advanced → Developer Mode</strong></li>
+            <li>Open the <strong>Discord Developer Portal</strong> (<a href="https://discord.com/developers/applications" style="color:#79c0ff;">discord.com/developers/applications</a>)</li>
+            <li>Create a new application/bot (e.g., named <code>My Bot</code>)</li>
+            <li>Go to <strong>Bot</strong> settings → click <strong>Reset Token</strong> to generate a new secure connection token</li>
+            <li>Enable intents: check <strong>Server Members Intent</strong> and <strong>Message Content Intent</strong> so the bot can read server messages</li>
+            <li>Connect the bot to your server: <strong>Server Settings → Integrations → App</strong> → link <code>My Bot</code></li>
+          </ul>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <div class="step-num">2</div>
+            <h3>Java Application (Listener)</h3>
+          </div>
+          <ul>
+            <li>Integrate the <strong>JDA (Java Discord API)</strong> library into the project</li>
+            <li>Configure authentication using the generated <strong>Discord Bot token</strong></li>
+            <li>The application uses <strong>WebSockets internally</strong> to instantly detect when a message is received</li>
+            <li>On message receipt, forward content via the Vital Global API (see below)</li>
+          </ul>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <div class="step-num">3</div>
+            <h3>Vital Global (SMS Alerts) Configuration</h3>
+          </div>
+          <ul>
+            <li>The application calls the <strong>Vital Global API</strong> to forward received Discord messages as SMS</li>
+            <li>Use a <strong>GET</strong> request, passing configuration as <strong>query parameters</strong></li>
+            <li><strong>Sender:</strong> The <code>From</code> address must be the Vital Global registered admin mobile number</li>
+            <li><strong>Recipients:</strong> Provide a <strong>comma-separated list</strong> of target phone numbers for simultaneous delivery to multiple users</li>
+          </ul>
+          <div class="code-block">
+            <div class="code-label">API pattern (example)</div>
+            <pre>GET https://&lt;vital-global-api&gt;?from=&lt;admin-number&gt;&amp;to=&lt;num1,num2,num3&gt;&amp;message=&lt;encoded-text&gt;
+<span class="comment"># Actual parameters per Vital Global API documentation</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="dj-commands">
+        <div class="section-header">
+          <div class="section-num purple">3</div>
+          <h2>Commands Used</h2>
+        </div>
+        <div class="step">
+          <p style="font-size:14px; color:#8b949e; margin-bottom: 12px;">No specific terminal commands were shown on screen during the recording. The deployment workflow uses standard Java build steps and HTTP GET requests for Vital Global integration.</p>
+        </div>
+        <div class="code-block">
+          <div class="code-label">Typical Java build & deploy</div>
+          <pre><span class="comment"># Compile and package the listener as a .jar</span>
+mvn clean package
+<span class="comment"># or</span>
+./gradlew build
+
+<span class="comment"># Upload the resulting .jar to AWS Elastic Beanstalk</span>
+<span class="comment"># (via AWS Console or EB CLI)</span>
+
+<span class="comment"># Vital Global — HTTP GET with query parameters</span>
+curl "https://&lt;vital-global-endpoint&gt;?param1=value1&amp;param2=value2"</pre>
+        </div>
+      </div>
+
+      <div class="section" id="dj-ui-steps">
+        <div class="section-header">
+          <div class="section-num">🖥️</div>
+          <h2>Screenshots / UI Steps</h2>
+        </div>
+
+        <div class="step">
+          <h3 style="margin-bottom:12px; font-size:14px; color:#8b949e;">Discord Developer Portal</h3>
+          <div class="ui-path">
+            <span>Developer Portal</span><div class="arrow">→</div>
+            <span>Create Application</span><div class="arrow">→</div>
+            <span>Bot tab</span><div class="arrow">→</div>
+            <span>Reset Token</span><div class="arrow">→</div>
+            <span>Enable Intents</span>
+          </div>
+          <p style="font-size:13px; color:#8b949e; margin-top:8px;">Explicitly toggle the <strong>Intents</strong> switches for Server Members and Message Content before connecting the bot to your server.</p>
+        </div>
+
+        <div class="step">
+          <h3 style="margin-bottom:12px; font-size:14px; color:#8b949e;">Vital Global API</h3>
+          <ul>
+            <li>If capturing screenshots of Vital Global API query parameters for the team, <strong>redact passwords and sensitive parameters</strong> before saving or sharing</li>
+            <li>Document only non-sensitive parameter names and structure in shared materials</li>
+          </ul>
+        </div>
+
+        <div class="step">
+          <h3 style="margin-bottom:12px; font-size:14px; color:#8b949e;">AWS Elastic Beanstalk</h3>
+          <div class="ui-path">
+            <span>Elastic Beanstalk</span><div class="arrow">→</div>
+            <span>Create application</span><div class="arrow">→</div>
+            <span>Upload .jar</span><div class="arrow">→</div>
+            <span>Configure Java 21</span><div class="arrow">→</div>
+            <span>Deploy</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="dj-warnings">
+        <div class="section-header">
+          <div class="section-num red">⚠</div>
+          <h2>Important Notes & Warnings</h2>
+        </div>
+
+        <div class="danger">
+          <div class="icon">🔴</div>
+          <p><strong>Never expose credentials in source code</strong> Do not hardcode passwords, API URLs, or the Discord Bot token. Maintain credentials separately and inject them securely (environment variables, AWS secrets, etc.).</p>
+        </div>
+
+        <div class="warning">
+          <div class="icon">⚠️</div>
+          <p><strong>Regional SMS limitations</strong> Vital Global SMS routing currently works for <strong>US phone numbers only</strong>. India phone numbers are not receiving messages at this time.</p>
+        </div>
+
+        <div class="info">
+          <div class="icon">ℹ️</div>
+          <p><strong>Compliance</strong> Using the official Discord Bot Token with the JDA library is the correct, authorized way to read messages — replacing older methods of unauthorized message inspection.</p>
+        </div>
+      </div>
+
+      <div class="section" id="dj-next-steps">
+        <div class="section-header">
+          <div class="section-num green">✓</div>
+          <h2>Next Steps</h2>
+        </div>
+
+        <div class="next-step">
+          <div class="check">📋</div>
+          <div>
+            <h4>Consolidate Documentation</h4>
+            <p>Finalize this documentation guide for the team so setup steps, credentials handling, and deployment are consistently documented.</p>
+          </div>
+        </div>
+
+        <div class="next-step">
+          <div class="check">🔒</div>
+          <div>
+            <h4>Secure Credentials</h4>
+            <p>Package removed/redacted credentials and share them safely with authorized personnel — separately from the codebase and public documentation.</p>
+          </div>
+        </div>
+
+        <div class="next-step">
+          <div class="check">🔄</div>
+          <div>
+            <h4>Refactor Legacy Python Code</h4>
+            <p>Trim the older Python script: it no longer needs to listen for messages or send SMS. It should only forward source server messages to this new Java listener server.</p>
+          </div>
+        </div>
+      </div>
+
+      </main>
+    </div>
     </div>
 
     <footer>
@@ -865,8 +1123,17 @@ git push</pre>
 <script>
 (function () {
   var docBtns = document.querySelectorAll('.doc-btn');
-  var sectionNavs = { ecs: document.getElementById('nav-ecs'), cloudflare: document.getElementById('nav-cloudflare') };
-  var panels = { ecs: document.getElementById('panel-ecs'), cloudflare: document.getElementById('panel-cloudflare') };
+  var sectionNavs = {
+    ecs: document.getElementById('nav-ecs'),
+    cloudflare: document.getElementById('nav-cloudflare'),
+    'discord-java': document.getElementById('nav-discord-java')
+  };
+  var panels = {
+    ecs: document.getElementById('panel-ecs'),
+    cloudflare: document.getElementById('panel-cloudflare'),
+    'discord-java': document.getElementById('panel-discord-java')
+  };
+  var hashMap = { ecs: '#ecs', cloudflare: '#cloudflare', 'discord-java': '#discord-java' };
   var headerTitle = document.getElementById('header-title');
   var headerSubtitle = document.getElementById('header-subtitle');
   var headerBadge = document.getElementById('header-badge');
@@ -886,6 +1153,12 @@ git push</pre>
       subtitle: 'Deploying MarketVeta Trading Dashboard (Angular) to Cloudflare Pages',
       badge: '🌐 Live: <a href="https://trade-dashboard-ui-7bb.pages.dev">trade-dashboard-ui-7bb.pages.dev</a> — June 4, 2026',
       date: 'June 4, 2026'
+    },
+    'discord-java': {
+      title: 'Discord Java Listener',
+      subtitle: 'Discord Message Forwarding via Java and Vital Global SMS',
+      badge: '📹 Generated from Meeting Recording',
+      date: 'June 2026'
     }
   };
 
@@ -941,7 +1214,7 @@ git push</pre>
     headerSubtitle.textContent = m.subtitle;
     headerBadge.innerHTML = m.badge;
     footerDate.textContent = m.date;
-    history.replaceState(null, '', tab === 'ecs' ? '#ecs' : '#cloudflare');
+    history.replaceState(null, '', hashMap[tab] || '#ecs');
     observeSections(sectionNavs[tab]);
   }
 
@@ -953,9 +1226,11 @@ git push</pre>
 
   bindSectionNav(sectionNavs.ecs);
   bindSectionNav(sectionNavs.cloudflare);
+  bindSectionNav(sectionNavs['discord-java']);
 
-  if (location.hash === '#cloudflare') {
-    switchTab('cloudflare');
+  var initialTab = location.hash.replace('#', '');
+  if (hashMap[initialTab]) {
+    switchTab(initialTab);
   } else {
     switchTab('ecs');
   }
